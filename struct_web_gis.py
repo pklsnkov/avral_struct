@@ -8,8 +8,6 @@ from urllib.parse import urlparse
 from avral.operation import AvralOperation, OperationException
 from avral.io.types import FileType, IntType, StringType
 
-import pyngw
-
 
 class Struct_Web_Gis(AvralOperation):
     def __init__(self):
@@ -28,11 +26,12 @@ class Struct_Web_Gis(AvralOperation):
 
     def getting_resource(self, webgis_addr, login, password):
 
-        url = webgis_addr + '/api/resource/search/'
-        auth = f"{login}:{password}"
+        url = f"{webgis_addr}/api/resource/search/"
+        creds = f"{login}:{password}"
+
         headers = {
             'Accept': '*/*',
-            'Authorization': 'Basic' + ' ' + base64.b64encode(auth.encode("utf-8")).decode("utf-8")
+            'Authorization': 'Basic' + ' ' + base64.b64encode(creds.encode("utf-8")).decode("utf-8")
         }
 
         response = requests.get(url, headers=headers)
@@ -43,8 +42,7 @@ class Struct_Web_Gis(AvralOperation):
         else:
             raise OperationException("Error in webgis addr or login/password")
 
-
-    def selected_dataframe(self, mode, dataframe):
+    def selected_dataframe(self, mode: str, dataframe):
 
         select = dataframe['resource.cls'] == mode
         if select.any():
@@ -54,8 +52,7 @@ class Struct_Web_Gis(AvralOperation):
 
         return dataframe
 
-
-    def __make_valid_url(self, url): # todo: а вот тут подумать
+    def __make_valid_url(self, url):  # todo: а вот тут подумать
         # beautify url taken from
         # https://github.com/nextgis/ngw_external_api_python/blob/master/qgis/ngw_connection_edit_dialog.py#L167
 
@@ -101,7 +98,7 @@ class Struct_Web_Gis(AvralOperation):
 
         dataframe = pd.json_normalize(jsonfile)
 
-        if mode.lower().strip():
+        if mode.lower().strip() != 'all':
             try:
                 MODE_DICT = {
                     'raster': 'raster_layer',

@@ -4,6 +4,9 @@ from setuptools import setup
 
 requires = [
     'avral',
+    'pandas',
+    'requests',
+    'openpyxl'
 ]
 
 setup(
@@ -17,16 +20,15 @@ setup(
     author='nextgis',
     author_email='info@nextgis.com',
     url='http://nextgis.com',
-    keywords='geo processing server',
+    keywords='',
     #packages=['avral_dezhurcad'],
-    packages=setuptools.find_packages(),
+    packages=['avral_struct'],
     include_package_data=True,
     zip_safe=False,
-    # test_suite='avral_web',
     install_requires=requires,
     entry_points={
         'avral_operations': [
-            'StructWebGis = avral_struct.operations:StructWebGis',
+            'struct = avral_struct.operations:StructWebGis',
         ],
     }
     #package_data={'': ['avral_dezhurcad/ng_rosreestr_parser/NGRosreestrParser/resources/*']}

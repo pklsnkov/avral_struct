@@ -8,44 +8,20 @@ import base64
 import re
 from urllib.parse import urlparse
 
-import pyngw
+# import pyngw
 
 webgis_addr = 'https://kolesnikov-p.nextgis.com'
 login = 'pvk200815@gmail.com'
 password = 'yNCY3VQ4zNDDYJ4'
-mode = 'collector_project'
-
-MODES = {
-    'RASTER': 'raster_layer',
-    'VECTOR': 'vector_layer',
-    'WEBMAP': 'webmap',
-    'RESOURCE_GROUP': 'resource_group'
-}
+mode = 'collector_project, raster'
 
 
-# def ngw_connect(url, login, password):
-#     url_auth = url + '/api/component/auth/login'
-#     creds = {
-#         'login': login,
-#         'password': password
-#     }
-#     headers = {
-#         'Accept': '*/*'
-#     }
-#
-#     connect_responce = requests.post(url_auth, json=creds, headers=headers)
-#
-#     if connect_responce.status_code == 200:
-#         connect_responce_json = connect_responce.json()
-#         user_id = connect_responce_json['id']
-#         user_login = connect_responce_json['keyname']
-#         # user_display_name = connect_responce_json['display_name']
-#         print(user_id, user_login)
-#     else:
-#         print('Wrong NGW url or login / password', connect_responce.status_code)
+def selected_dataframe(mode, dataframe):
+    if isinstance(mode, str):
+        select = dataframe['resource.cls'] == mode
+    else:
+        select = dataframe['resource.cls'].isin(mode)
 
-def selected_dataframe( mode, dataframe):
-    select = dataframe['resource.cls'] == mode
     if select.any():
         dataframe = dataframe[select]
     else:
@@ -71,42 +47,19 @@ def getting_resource(webgis_addr, login, password):
     else:
         print(f"ошибка в запросе, {response.status_code}") # fixme
 
+def parse_modes(mode):
 
-# def __make_valid_url(url):
-#     # beautify url taken from
-#     # https://github.com/nextgis/ngw_external_api_python/blob/master/qgis/ngw_connection_edit_dialog.py#L167
-#
-#     url = url.strip()
-#
-#     # Always remove trailing slashes (this is only a base url which will not be
-#     # used standalone anywhere).
-#     while url.endswith('/'):
-#         url = url[:-1]
-#
-#     # Replace common ending when user copy-pastes from browser URL.
-#     url = re.sub('/resource/[0-9]+', '', url)
-#
-#     o = urlparse(url)
-#     hostname = o.hostname
-#
-#     # Select https if protocol has not been defined by user.
-#     if hostname is None:
-#         hostname = 'http://' if self.force_http else 'https://'
-#         return hostname + url
-#
-#     # Force https regardless of what user has selected, but only for cloud connections.
-#     if url.startswith('http://') and url.endswith('.nextgis.com') and not self.force_http:
-#         return url.replace('http://', 'https://')
-#
-#     return url
+    modes = []
+    mode = mode.replace(' ', '')
+    modes[0], modes[1] = mode.split(',')
 
-# webgis_addr = __make_valid_url(webgis_addr)
-# ngw_connect(webgis_addr, login, password)
+    return modes
+
 
 jsonfile = getting_resource(webgis_addr, login, password)
 
 dataframe = pd.json_normalize(jsonfile)
-
+modified_dataframe = []
 if mode.lower().strip() != 'all':
     try:
         MODE_DICT = {
@@ -133,12 +86,15 @@ if mode.lower().strip() != 'all':
         }
 
         mode = mode.lower().strip()
-        if mode in MODE_DICT:
+        if ',' in mode:
+            modes = parse_modes(mode)
+            modified_dataframe = selected_dataframe(modes, dataframe)  # недопилено, переделать функцию modified_dataframe для массивов
+        elif mode in MODE_DICT:
             modified_dataframe = selected_dataframe(MODE_DICT[mode], dataframe)
         else:
             print("Wrong mode")
     except:
-        modified_dataframe = None
+        pass
 else:
     modified_dataframe = dataframe
 

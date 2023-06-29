@@ -26,7 +26,7 @@ setup(
     install_requires=requires,
     entry_points={
         'avral_operations': [
-            'Struct_Web_Gis = avral_struct.operations:Struct_Web_Gis',
+            'StructWebGis = avral_struct.operations:StructWebGis',
         ],
     }
     #package_data={'': ['avral_dezhurcad/ng_rosreestr_parser/NGRosreestrParser/resources/*']}

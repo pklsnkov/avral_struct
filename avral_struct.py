@@ -2,16 +2,15 @@ import pandas as pd
 import re
 import requests
 import base64
-
 from urllib.parse import urlparse
 
 from avral.operation import AvralOperation, OperationException
-from avral.io.types import FileType, IntType, StringType
+from avral.io.types import FileType, StringType
 
 
-class Struct_Web_Gis(AvralOperation):
+class StructWebGis(AvralOperation):
     def __init__(self):
-        super(Struct_Web_Gis, self).__init__(
+        super(StructWebGis, self).__init__(
             name="googlesheets2layer",
             inputs=[
                 ("web_gis", StringType(length=50)),
@@ -23,6 +22,7 @@ class Struct_Web_Gis(AvralOperation):
                 ("result", FileType()),
             ],
         )
+
 
     def getting_resource(self, webgis_addr, login, password):
 
@@ -42,7 +42,8 @@ class Struct_Web_Gis(AvralOperation):
         else:
             raise OperationException("Error in webgis addr or login/password")
 
-    def selected_dataframe(self, mode: str, dataframe):
+
+    def selected_dataframe(self, mode, dataframe):
 
         select = dataframe['resource.cls'] == mode
         if select.any():
@@ -52,13 +53,6 @@ class Struct_Web_Gis(AvralOperation):
 
         return dataframe
 
-    def parse_modes(self, mode):
-
-        modes = []
-        mode = mode.replace(' ', '')
-        modes[0], modes[1] = mode.split(',')
-
-        return modes
 
     def __make_valid_url(self, url):  # todo: а вот тут подумать
         # beautify url taken from
@@ -88,6 +82,7 @@ class Struct_Web_Gis(AvralOperation):
 
         return url
 
+
     def _do_work(self):
         global modified_dataframe
         webgis_addr = self.getInput("web_gis")
@@ -107,40 +102,34 @@ class Struct_Web_Gis(AvralOperation):
         dataframe = pd.json_normalize(jsonfile)
 
         if mode.lower().strip() != 'all':
-            try:
-                MODE_DICT = {
-                    'raster': 'raster_layer',
-                    'vector': 'vector_layer',
-                    'webmap': 'webmap',
-                    'resource_group': 'resource_group',
-                    'postgis_layer': 'postgis_layer',
-                    'wmsserver_service': 'wmsserver_service',
-                    'baselayers': 'baselayers',
-                    'postgis_connection': 'postgis_connection',
-                    'wfsserver_service': 'wfsserver_service',
-                    'mapserver_style': 'mapserver_style',
-                    'qgis_vector_style': 'qgis_vector_style',
-                    'raster_style': 'raster_style',
-                    'file_bucket': 'file_bucket',
-                    'lookup_table': 'lookup_table',
-                    'wmsclient_layer': 'wmsclient_layer',
-                    'wmsclient_connection': 'wmsclient_connection',
-                    'formbuilder_form': 'formbuilder_form',
-                    'trackers_group': 'trackers_group',
-                    'tracker': 'tracker',
-                    'collector_project': 'collector_project'
-                }
+            MODE_DICT = {
+                'raster': 'raster_layer',
+                'vector': 'vector_layer',
+                'webmap': 'webmap',
+                'resource_group': 'resource_group',
+                'postgis_layer': 'postgis_layer',
+                'wmsserver_service': 'wmsserver_service',
+                'baselayers': 'baselayers',
+                'postgis_connection': 'postgis_connection',
+                'wfsserver_service': 'wfsserver_service',
+                'mapserver_style': 'mapserver_style',
+                'qgis_vector_style': 'qgis_vector_style',
+                'raster_style': 'raster_style',
+                'file_bucket': 'file_bucket',
+                'lookup_table': 'lookup_table',
+                'wmsclient_layer': 'wmsclient_layer',
+                'wmsclient_connection': 'wmsclient_connection',
+                'formbuilder_form': 'formbuilder_form',
+                'trackers_group': 'trackers_group',
+                'tracker': 'tracker',
+                'collector_project': 'collector_project'
+            }
 
-                mode = mode.lower().replace(' ', '')
-                if ',' in mode:
-                    modes = self.parse_modes(mode)
-                    modified_dataframe = self # недопилено, переделать функцию modified_dataframe для массивов
-                if mode in MODE_DICT:
-                    modified_dataframe = self.selected_dataframe(MODE_DICT[mode], dataframe)
-                else:
-                    raise OperationException("Wrong mode")
-            except:
-                modified_dataframe = None
+            mode = mode.lower().replace(' ', '')
+            if mode in MODE_DICT:
+                modified_dataframe = self.selected_dataframe(MODE_DICT[mode], dataframe)
+            else:
+                raise OperationException("Wrong mode")
         else:
             modified_dataframe = dataframe
 

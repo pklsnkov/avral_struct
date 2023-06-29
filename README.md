@@ -1,46 +1,21 @@
-# avral_import_egrn
+# avral_struct
 
 
+## Спецификации входных данных 
 
-Сборка
 
-```
-docker build -t avral_googlesheets2layer:latest .
-docker run --rm -t -i -v ${PWD}:/avral_googlesheets2layer avral_googlesheets2layer:latest  /bin/bash
-
+## Build
 
 ```
-
-unittest in container 
-
-```
-cd /avral_googlesheets2layer
-pip install -e /avral_googlesheets2layer/ 
-python unittest/unittest.py
-```
-
-Запуск внутри контейнера.
-
-```
-cd /avral_googlesheets2layer
-#create new layer in group
-pip install -e /avral_googlesheets2layer/ && avral-exec Googlesheets2layer \
-https://sandbox.nextgis.com administrator demodemo 0 2950 18C_fmrnAhZexzm9Obdv3gk7aeDt1UkkAt8NV_q1ShEw replace
-#update existing layer in group
-pip install -e /avral_googlesheets2layer/ && avral-exec Googlesheets2layer \
-https://sandbox.nextgis.com administrator demodemo 2957 0 18C_fmrnAhZexzm9Obdv3gk7aeDt1UkkAt8NV_q1ShEw replace
-#full url
-#create new layer in group
-pip install -e /avral_googlesheets2layer/ && avral-exec Googlesheets2layer \
-https://sandbox.nextgis.com administrator demodemo 0 2950 "https://docs.google.com/spreadsheets/d/1O2pQCO-2QeYHyepweZaHuhakZTXzd1yWmyBp6bkoypw/edit#gid=611549357" replace
+docker build -t avral_grunt:latest .
+docker run --rm -t -i -v ${PWD}:/avral_grunt avral_grunt:latest /bin/bash
 ```
 
 
+## Run for debug in container
 
-Push to toolbox backend
 ```
-docker build -t avral_googlesheets2layer:latest .
-docker tag avral_googlesheets2layer:latest registry.nextgis.com/toolbox-workers/googlesheets2layer:prod
-docker image push registry.nextgis.com/toolbox-workers/googlesheets2layer:prod
-
+cd /avral_grunt
+pip3 install --no-cache-dir /opt/avral_grunt
+avral-exec --debug grunt_convert /avral_grunt/examples/source.xlsx
 ```

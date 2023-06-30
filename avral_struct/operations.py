@@ -23,7 +23,7 @@ class StructWebGis(AvralOperation):
             ],
         )
 
-
+    # Load resources using the http request
     def getting_resource(self, webgis_addr, login, password):
 
         url = f"{webgis_addr}/api/resource/search/"
@@ -43,6 +43,7 @@ class StructWebGis(AvralOperation):
             raise OperationException("Error in webgis addr or login/password")
 
 
+    # Datafame processing according to the mode
     def selected_dataframe(self, mode, dataframe):
 
         select = dataframe['resource.cls'] == mode

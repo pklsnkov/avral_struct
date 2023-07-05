@@ -41,15 +41,15 @@
 ## Build
 
 ```
-docker build -t avral_struct:latest .
-docker run --rm -t -i -v ${PWD}:/avral_struct avral_struct:latest /bin/bash
+docker build -t avral_web_gis_structure:latest .
+docker run --rm -t -i -v ${PWD}:/avral_web_gis_structure avral_web_gis_structure:latest /bin/bash
 ```
 
 
 ## Run for debug in container
 
 ```
-cd /avral_struct
-pip3 install --no-cache-dir /opt/avral_struct
-avral-exec --debug struct https://sandbox.nextgis.com administrator demodemo all
+cd /avral_web_gis_structure
+pip3 install --no-cache-dir /opt/avral_web_gis_structure
+avral-exec --debug web_gis_structure https://sandbox.nextgis.com administrator demodemo all
 ```

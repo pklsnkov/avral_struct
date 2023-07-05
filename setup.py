@@ -10,7 +10,7 @@ requires = [
 ]
 
 setup(
-    name='avral_struct',
+    name='avral_web_gis_structure',
     version='0.0.1',
     description='Extension for NextGIS Distributed Geo Task',
     # long_description=README + '\n\n' + CHANGES,
@@ -21,16 +21,15 @@ setup(
     author_email='info@nextgis.com',
     url='http://nextgis.com',
     keywords='',
-    #packages=['avral_dezhurcad'],
-    packages=['avral_struct'],
+    packages=['avral_web_gis_structure'],
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
     entry_points={
         'avral_operations': [
-            'struct = avral_struct.operations:StructWebGis',
+            'web_gis_structure = avral_web_gis_structure.operations:WebGisStructure',
         ],
     }
-    #package_data={'': ['avral_dezhurcad/ng_rosreestr_parser/NGRosreestrParser/resources/*']}
+
 
 )

@@ -6,15 +6,15 @@ from urllib.parse import urlparse
 
 from avral.operation import AvralOperation, OperationException
 from avral.io.types import FileType, StringType
+import os
 
-
-class StructWebGis(AvralOperation):
+class WebGisStructure(AvralOperation):
     def __init__(self):
-        super(StructWebGis, self).__init__(
-            name="StructWebGis",
+        super(WebGisStructure, self).__init__(
+            name="web_gis_structure",
             inputs=[
                 ("web_gis", StringType(length=50)),
-                ("login", StringType(length=50)),
+                ("username", StringType(length=50)),
                 ("password", StringType(length=50)),
                 ("mode", StringType(length=50))  # TODO : обязательный ли параметр? + добавить поддержку многих параметров
             ],
@@ -24,10 +24,10 @@ class StructWebGis(AvralOperation):
         )
 
     # Load resources using the http request
-    def getting_resource(self, webgis_addr, login, password):
+    def getting_resource(self, webgis_addr, username, password):
 
         url = f"{webgis_addr}/api/resource/search/"
-        creds = f"{login}:{password}"
+        creds = f"{username}:{password}"
 
         headers = {
             'Accept': '*/*',
@@ -40,7 +40,7 @@ class StructWebGis(AvralOperation):
             resources = response.json()
             return resources
         else:
-            raise OperationException("Error in webgis addr or login/password")
+            raise OperationException("Error in webgis addr or username/password")
 
 
     # Datafame processing according to the mode
@@ -87,7 +87,7 @@ class StructWebGis(AvralOperation):
     def _do_work(self):
         global modified_dataframe
         webgis_addr = self.getInput("web_gis")
-        login = self.getInput("login")
+        username = self.getInput("username")
         password = self.getInput("password")
         mode = self.getInput("mode")
 
@@ -95,10 +95,10 @@ class StructWebGis(AvralOperation):
         if webgis_addr.startswith('http://'): self.force_http = True
         webgis_addr = self.__make_valid_url(webgis_addr)
 
-        if None in (webgis_addr, login, password, mode):
+        if None in (webgis_addr, username, password, mode):
             raise OperationException("Internal error: Wrong number of arguments")
 
-        jsonfile = self.getting_resource(webgis_addr, login, password)
+        jsonfile = self.getting_resource(webgis_addr, username, password)
 
         dataframe = pd.json_normalize(jsonfile)
 
@@ -130,10 +130,20 @@ class StructWebGis(AvralOperation):
             if mode in MODE_DICT:
                 modified_dataframe = self.selected_dataframe(MODE_DICT[mode], dataframe)
             else:
-                raise OperationException("Wrong mode")
+                raise OperationException("Wrong mode. Mode should be one of "+' '+MODE_DICT.keys())
         else:
             modified_dataframe = dataframe
+    
 
-        modified_dataframe.to_excel('result.xlsx', index=False)
+        modified_dataframe.to_excel('structure.xlsx', index=False)
 
-        self.setOutput("result", 'result.xlsx')
+        webgis_name = webgis_addr
+        webgis_name = webgis_addr.replace('https://','')
+        webgis_name = webgis_addr.replace('http://','')
+        webgis_name = webgis_addr.replace('/','')
+        webgis_name = webgis_addr.replace('https:','')
+        
+        new_filename = webgis_name+'_structure.xlsx'
+        os.rename('structure.xlsx',new_filename)
+        
+        self.setOutput("result", new_filename)

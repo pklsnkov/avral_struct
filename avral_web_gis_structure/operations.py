@@ -13,7 +13,7 @@ class WebGisStructure(AvralOperation):
         super(WebGisStructure, self).__init__(
             name="web_gis_structure",
             inputs=[
-                ("web_gis", StringType(length=50)),
+                ("url", StringType(length=50)),
                 ("username", StringType(length=50)),
                 ("password", StringType(length=50)),
                 ("mode", StringType(length=50))  # TODO : обязательный ли параметр? + добавить поддержку многих параметров
@@ -86,7 +86,7 @@ class WebGisStructure(AvralOperation):
 
     def _do_work(self):
         global modified_dataframe
-        webgis_addr = self.getInput("web_gis")
+        webgis_addr = self.getInput("url")
         username = self.getInput("username")
         password = self.getInput("password")
         mode = self.getInput("mode")
